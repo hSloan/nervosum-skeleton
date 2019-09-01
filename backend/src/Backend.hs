@@ -12,17 +12,14 @@
 module Backend where
 
 import Prelude hiding (id, (.))
+import Backend.Notification
 import Common.App
 import Common.Route
 import Control.Category
 import Control.Monad.Logger
 import Control.Monad.IO.Class
-import Data.Aeson
-import Data.Aeson.GADT.TH
-import Data.Constraint.Extras.TH
 import Data.Dependent.Sum (DSum (..))
 import Data.Functor.Identity
-import Data.GADT.Show.TH
 import qualified Data.Map.Monoidal as MMap
 import Data.Pool
 import Data.Semigroup
@@ -36,10 +33,8 @@ import Rhyolite.Backend.Account
 import Rhyolite.Backend.App
 import Rhyolite.Backend.DB
 import Rhyolite.Backend.DB.Gargoyle
-import Rhyolite.Backend.Listen
 import Rhyolite.Backend.Logging
 import Rhyolite.Backend.Sign
-import Rhyolite.Schema
 import qualified Web.ClientSession as CS
 
 backend :: Backend BackendRoute FrontendRoute
@@ -63,7 +58,7 @@ backend = Backend
             (viewSelectorHandler csk logger db)
             (queryMorphismPipeline $ transposeMonoidMap . monoidMapQueryMorphism)
           liftIO $ serve $ \case
-            BackendRoute_Missing :=> _ -> listen -- TODO: create a 404 page not found route || THIS WILL CAUSE A PROBLEM
+            BackendRoute_Missing :=> _ -> listen -- TODO: create a 404 page not found route
             BackendRoute_Listen :=> Identity () -> listen
 
   , _backend_routeEncoder = backendRouteEncoder
@@ -87,15 +82,6 @@ handleRequests logger csk db = RequestHandler $ \req -> runLoggingEnv logger $ r
         PrivateRequest_Bar _ -> return $ Right ()
     | otherwise -> error "Unable to authenticate private request"
 
--- TODO: Notifications matter when a change happens within a database and you need to let the frontend know to re-query
--- the database in order to update the view. It is recommeded that a module is created for notification handling.
-data Notification :: * -> * where
-  Notification_Foo :: Notification (Id Account)
-
--- Notifies the frontend when some data in the database has changed so that it may update the current view
-notifyHandler :: forall a. Semigroup a => LoggingEnv -> CS.Key -> Pool Postgresql -> DbNotification Notification -> DefAppViewSelector a -> IO (DefAppView a)
-notifyHandler _ _ _ = return mempty
-
 -- TODO: As this function grows, it is recommeded that a module is created for handling view selectors  
 -- Queries database for requested data and returns it to the frontend
 viewSelectorHandler
@@ -112,8 +98,4 @@ addDefaultAccount :: (PersistBackend m, SqlDb (PhantomDb m), MonadIO m) => m ()
 addDefaultAccount = do
   (_,acc) <- ensureAccountExists Notification_Foo "foo@bar.com"
   setAccountPassword acc "asdf"
-
-deriveJSONGADT ''Notification
-deriveArgDict ''Notification
-deriveGShow ''Notification
 
