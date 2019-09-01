@@ -19,7 +19,6 @@ import Rhyolite.Backend.Logging
 import Rhyolite.Schema
 import qualified Web.ClientSession as CS
 
--- TODO: Notifications matter when a change happens within a database and you need to let the frontend know to re-query
 -- the database in order to update the view. It is recommeded that a module is created for notification handling.
 data Notification :: * -> * where
   Notification_Foo :: Notification (Id Account)
