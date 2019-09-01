@@ -13,6 +13,7 @@ module Backend where
 
 import Prelude hiding (id, (.))
 import Backend.Notification
+import Backend.ViewSelector
 import Common.App
 import Common.Route
 import Control.Category
@@ -20,9 +21,7 @@ import Control.Monad.Logger
 import Control.Monad.IO.Class
 import Data.Dependent.Sum (DSum (..))
 import Data.Functor.Identity
-import qualified Data.Map.Monoidal as MMap
 import Data.Pool
-import Data.Semigroup
 import Database.Groundhog (runMigration)
 import Database.Groundhog.Generic.Migration
 import Database.Groundhog.Postgresql
@@ -81,18 +80,6 @@ handleRequests logger csk db = RequestHandler $ \req -> runLoggingEnv logger $ r
     | Just (AuthToken (Identity _accId)) <- readSignedWithKey csk token -> case r of
         PrivateRequest_Bar _ -> return $ Right ()
     | otherwise -> error "Unable to authenticate private request"
-
--- TODO: As this function grows, it is recommeded that a module is created for handling view selectors  
--- Queries database for requested data and returns it to the frontend
-viewSelectorHandler
-  :: CS.Key
-  -> LoggingEnv
-  -> Pool Postgresql
-  -> QueryHandler (DefAppViewSelector a) IO
-viewSelectorHandler _csk logger db = QueryHandler $ \vs -> runLoggingEnv logger $ runDb (Identity db) $
-  return DefAppView
-    { _appDefView_echo = MMap.mapWithKey (\_ v -> (v, First (Just ""))) $ _appDefViewSelector_echo vs
-    }
 
 addDefaultAccount :: (PersistBackend m, SqlDb (PhantomDb m), MonadIO m) => m ()
 addDefaultAccount = do
