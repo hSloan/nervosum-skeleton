@@ -46,7 +46,6 @@ entryPage = do
   email <- inputElement def
   password <- inputElement def
   login <- button "Login"
-  -- TODO: Create and send request to login. 
   let requestPrep = (\e p -> ApiRequest_Public $ PublicRequest_Login e p)
         <$> value email
         <*> value password

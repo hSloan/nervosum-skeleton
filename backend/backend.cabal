@@ -32,6 +32,7 @@ library
   exposed-modules:
     Backend
     Backend.Notification
+    Backend.RequestHandler
     Backend.ViewSelector
   ghc-options: -Wall
 
