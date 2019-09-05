@@ -19,14 +19,14 @@ import Rhyolite.Backend.Logging
 import Rhyolite.Schema
 import qualified Web.ClientSession as CS
 
--- the database in order to update the view. It is recommeded that a module is created for notification handling.
 data Notification :: * -> * where
   Notification_Foo :: Notification (Id Account)
 
--- Notifies the frontend when some data in the database has changed so that it may update the current view
+-- Notifies the frontend when a table in the database has undergone a transaction or change
 notifyHandler :: forall a. Semigroup a => LoggingEnv -> CS.Key -> Pool Postgresql -> DbNotification Notification -> DefAppViewSelector a -> IO (DefAppView a)
 notifyHandler _ _ _ = return mempty
 
+-- Template Haskell Meta Programming functions to create and derive instances for the Notification type
 deriveJSONGADT ''Notification
 deriveArgDict ''Notification
 deriveGShow ''Notification

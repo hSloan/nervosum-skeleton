@@ -13,7 +13,7 @@ import Rhyolite.Backend.DB
 import Rhyolite.Backend.Logging
 import qualified Web.ClientSession as CS
 
--- Queries database for requested data and returns it to the frontend
+-- Queries database for requested data and returns it to the frontend view
 viewSelectorHandler
   :: CS.Key
   -> LoggingEnv

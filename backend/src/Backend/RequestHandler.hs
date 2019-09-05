@@ -17,7 +17,6 @@ import Rhyolite.Backend.Logging
 import Rhyolite.Backend.Sign
 import qualified Web.ClientSession as CS
 
--- TODO: As this function grows it is recommended that you create a module dedicated to handling request. 
 handleRequests
   :: ( MonadIO m
      , MonadBaseNoPureAborts IO m
