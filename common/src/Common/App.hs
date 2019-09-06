@@ -25,6 +25,9 @@ import Rhyolite.App
 import Rhyolite.Request.TH
 import Rhyolite.Schema
 
+cookieKey :: Text
+cookieKey = "authorizationCookie"
+
 data DefApp = DefApp
 
 instance HasRequest DefApp where
