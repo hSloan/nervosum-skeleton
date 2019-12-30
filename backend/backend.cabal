@@ -33,6 +33,7 @@ library
     Backend
     Backend.Notification
     Backend.RequestHandler
+    Backend.Schema
     Backend.ViewSelector
   ghc-options: -Wall
 

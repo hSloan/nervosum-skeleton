@@ -21,3 +21,4 @@ library
     Common.Api
     Common.App
     Common.Route
+    Common.Schema
