@@ -14,6 +14,7 @@ module Backend where
 import Prelude hiding (id, (.))
 import Backend.Notification
 import Backend.RequestHandler
+import Backend.Schema
 import Backend.ViewSelector
 import Common.Route
 import Control.Category
@@ -22,7 +23,7 @@ import Control.Monad.IO.Class
 import Data.Dependent.Sum (DSum (..))
 import Data.Functor.Identity
 import Database.Groundhog (runMigration)
-import Database.Groundhog.Generic.Migration
+import Database.Groundhog.Generic.Migration hiding (migrateSchema)
 import Database.Groundhog.Postgresql
 import Obelisk.Backend
 import Rhyolite.Backend.Account
@@ -42,11 +43,10 @@ backend = Backend
           _ <- runLoggingEnv logger $ do
             runDb (Identity db) $ do
               tableInfo <- getTableAnalysis
-              addDefaultAccount
               runMigration $ do
                 migrateAccount tableInfo
-                -- migrateSchema tableInfo -- TODO: make sure migrations are handled for additional schemas
-
+                migrateSchema tableInfo -- TODO: make sure migrations are handled for additional schemas
+              addDefaultAccount
           (listen, _) <- serveDbOverWebsockets db
             (handleRequests logger csk db)
             (notifyHandler logger csk db)
